@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-rest-api/model"
 	"go-rest-api/util"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -44,4 +46,57 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		util.RespondError(w, 403, "Username not found")
 	}
+}
+
+func (a *App) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+
+	r.ParseMultipartForm(32 << 20)
+
+	imageName, err := FileUpload(r)
+	if err != nil {
+		fmt.Println(err)
+		util.RespondError(w, 500, "Upload image failed")
+		return
+	}
+
+	user.Username = r.FormValue("username")
+	user.Password = r.FormValue("password")
+	user.FullName = r.FormValue("fullName")
+	user.PhotoProfile = imageName
+
+	fmt.Println(user)
+
+	a.db.Create(&user)
+
+	util.RespondJSON(w, 200, user)
+}
+
+func FileUpload(r *http.Request) (string, error) {
+	file, handler, err := r.FormFile("photoProfile")
+	if err != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return "", err
+	}
+	defer file.Close()
+	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+	fmt.Printf("File Size: %+v\n", handler.Size)
+	fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+	tempFile, err := ioutil.TempFile("upload", "upload-*.png")
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	defer tempFile.Close()
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+	tempFile.Write(fileBytes)
+
+	return tempFile.Name(), nil
 }
