@@ -98,6 +98,35 @@ func (a *App) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	util.RespondJSON(w, 200, user)
 }
 
+func (a *App) UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	result := a.db.Where("id = ?", id).First(&user)
+	if result.RowsAffected != 0 {
+		r.ParseMultipartForm(32 << 20)
+
+		imageName, err := FileUpload(r)
+		if err != nil {
+			fmt.Println(err)
+			util.RespondError(w, 500, "Upload image failed")
+			return
+		}
+
+		user.Username = r.FormValue("username")
+		user.Password = r.FormValue("password")
+		user.FullName = r.FormValue("fullName")
+		user.PhotoProfile = imageName
+
+		a.db.Save(&user)
+
+		util.RespondJSON(w, 200, user)
+	} else {
+		util.RespondError(w, 400, "ID Not found")
+	}
+}
+
 func FileUpload(r *http.Request) (string, error) {
 	file, handler, err := r.FormFile("photoProfile")
 	if err != nil {

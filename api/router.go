@@ -11,4 +11,5 @@ func (a *App) SetRoute() {
 	a.router.Handle("/create", CheckToken(http.HandlerFunc(a.CreateUserHandler))).Methods("POST")
 	a.router.Handle("/read", CheckToken(http.HandlerFunc(a.ReadAllUserHandler))).Methods("GET")
 	a.router.Handle("/delete/{id}", CheckToken(http.HandlerFunc(a.DeleteUserHandler))).Methods("DELETE")
+	a.router.Handle("/update/{id}", CheckToken(http.HandlerFunc(a.UpdateUserHandler))).Methods("PUT")
 }
