@@ -1,0 +1,13 @@
+{
+    "Server":{
+        "Host":"localhost",
+        "Port":"5000"
+    },
+    "Database":{
+        "DBUsername":"dev",
+        "DBPassword":"123456",
+        "DBDialect":"mysql",
+        "DBName":"go-rest-api",
+        "DBIpAddr":"172.17.0.2"
+    }
+}
