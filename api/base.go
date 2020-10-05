@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-rest-api/config"
 	"go-rest-api/database"
+	"go-rest-api/model"
 	"log"
 	"net/http"
 
@@ -20,6 +21,9 @@ func (a *App) InitAndServe(c *config.Configuration) {
 	a.db = database.InstantiateDB(&c.Database)
 
 	a.router = mux.NewRouter()
+
+	model.MigrateUser(a.db)
+	a.SetRoute()
 
 	addr := fmt.Sprintf("%s:%d", c.Server.Host, c.Server.Port)
 
