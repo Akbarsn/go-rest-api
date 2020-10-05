@@ -9,4 +9,5 @@ func (a *App) SetRoute() {
 	a.router.HandleFunc("/login", a.LoginHandler).Methods("POST")
 
 	a.router.Handle("/create", CheckToken(http.HandlerFunc(a.CreateUserHandler))).Methods("POST")
+	a.router.Handle("/read", CheckToken(http.HandlerFunc(a.ReadAllUserHandler))).Methods("GET")
 }

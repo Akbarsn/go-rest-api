@@ -48,6 +48,12 @@ func (a *App) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *App) ReadAllUserHandler(w http.ResponseWriter, r *http.Request) {
+	users := []model.User{}
+	a.db.Find(&users)
+	util.RespondJSON(w, 200, users)
+}
+
 func (a *App) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 
