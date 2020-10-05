@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -52,6 +54,24 @@ func (a *App) ReadAllUserHandler(w http.ResponseWriter, r *http.Request) {
 	users := []model.User{}
 	a.db.Find(&users)
 	util.RespondJSON(w, 200, users)
+}
+
+func (a *App) DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	var user model.User
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	result := a.db.Where("id = ?", id).First(&user)
+	if result.RowsAffected != 0 {
+		err := a.db.Delete(&user).Error
+		if err != nil {
+			util.RespondError(w, 500, "Delete error")
+		} else {
+			util.RespondJSON(w, 200, map[string]string{"message": "User Deleted"})
+		}
+	} else {
+		util.RespondError(w, 400, "ID Not found")
+	}
 }
 
 func (a *App) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
